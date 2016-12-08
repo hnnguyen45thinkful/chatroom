@@ -1,5 +1,4 @@
 //Created and edited by Hieu Nguyen
-//Added the socket_io 
 var socket_io = require('socket.io');
 var http = require('http');
 var express = require('express');
@@ -7,19 +6,34 @@ var express = require('express');
 var app = express();
 app.use(express.static('public'));
 
-
 var server = http.Server(app);
 var io = socket_io(server);
 
-
 io.on('connection', function (socket) {
-    console.log('Client connected');
-    //Here you add a new listener to the socket which is used to communicate with the client. When a message with the name message is received on the socket you simply print out the message. Restart the server and try entering a message. You should see it getting printed by the server.
+    var currentName = '';
+    
+    socket.on('nickname', function(nickname) {
+        currentName = nickname;
+       io.emit('nickname', nickname + ' has entered the room');
+    });
+    
     socket.on('message', function(message) {
-        console.log('Received message:', message);
-        socket.broadcast.emit('message', message);
+        var fullMessage = currentName + ': ' + message;
+        io.emit('message', fullMessage);
     });
 });
-app.listen(process.env.PORT || 8080, function(){
-    console.log('Server is running at http://localhost:8080');
-});
+
+server.listen(process.env.PORT || 8080);    
+console.log('Server is running at http://localhost:8080');
+
+// Enhance the Chatroom
+
+// For this project you are going to take the code from the previous exercise and add some new features using Socket.IO. There are a number of subtasks which you can tackle. Pick two or three of the tasks from the list below and try to add them to your app:
+
+// Broadcast and display a message to connected users when someone connects or disconnects
+// Display a count of how many users are connected
+// Add support for nicknames
+// Add "{user} is typing" functionality
+// Show who's online
+// Add private messaging
+
